@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -23,7 +22,6 @@ class MyHomepage extends StatefulWidget {
 }
 
 class _MyHomepageState extends State<MyHomepage> {
-  int number = 0;
   String num1 = "";
   String num2 = "";
   String operator = "";
@@ -38,7 +36,68 @@ class _MyHomepageState extends State<MyHomepage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(showValue, style: TextStyle(fontSize: 40)),
-            const Padding(padding: EdgeInsets.only(top: 50)),
+            Padding(padding: EdgeInsets.only(top: 30)),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      if (operator.isEmpty) {
+                        if (num1.isNotEmpty) {
+                          num1 = num1.substring(0, num1.length - 1);
+                          showValue = num1.isEmpty ? "0" : num1;
+                        }
+                      } else {
+                        if (num2.isNotEmpty) {
+                          num2 = num2.substring(0, num2.length - 1);
+                          showValue = num2.isEmpty ? "0" : num2;
+                        }
+                      }
+                    });
+                  },
+                  backgroundColor: Colors.red,
+                  child: Text("DEL"),
+                ),
+                SizedBox(width: 30),
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      operator = "^";
+                    });
+                  },
+                  child: Text("^"),
+                ),
+                SizedBox(width: 30),
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      operator = "%";
+                    });
+                  },
+                  child: Text("%"),
+                ),
+                SizedBox(width: 30),
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      if (num1.isNotEmpty) {
+                        double n = double.parse(num1);
+                        showValue = sqrt(n).toString();
+                        num1 = showValue;
+                        num2 = "";
+                        operator = "";
+                      }
+                    });
+                  },
+                  child: Text("√"),
+                ),
+              ],
+            ),
+
+            Padding(padding: EdgeInsets.only(top: 15)),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -90,14 +149,16 @@ class _MyHomepageState extends State<MyHomepage> {
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      operator = "+";
+                      operator = "/";
                     });
                   },
-                  child: Text("+"),
+                  child: Text("/"),
                 ),
               ],
             ),
+
             Padding(padding: EdgeInsets.only(top: 15)),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -149,14 +210,16 @@ class _MyHomepageState extends State<MyHomepage> {
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      operator = "-";
+                      operator = "*";
                     });
                   },
-                  child: Text("-"),
+                  child: Text("*"),
                 ),
               ],
             ),
+
             Padding(padding: EdgeInsets.only(top: 15)),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -208,14 +271,16 @@ class _MyHomepageState extends State<MyHomepage> {
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      operator = "*";
+                      operator = "-";
                     });
                   },
-                  child: Text("*"),
+                  child: Text("-"),
                 ),
               ],
             ),
+
             Padding(padding: EdgeInsets.only(top: 15)),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -235,6 +300,7 @@ class _MyHomepageState extends State<MyHomepage> {
                 ),
                 SizedBox(width: 30),
                 FloatingActionButton(
+                  backgroundColor: Colors.purple,
                   onPressed: () {
                     setState(() {
                       num1 = "";
@@ -243,22 +309,18 @@ class _MyHomepageState extends State<MyHomepage> {
                       showValue = "0";
                     });
                   },
-                  child: Text(
-                    "C",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                  backgroundColor: Colors.purple[900],
+                  child: Text("C"),
                 ),
                 SizedBox(width: 30),
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      if (num1 == "" || num2 == "") {
-                        return;
-                      }
+                      if (num1 == "" || (operator != "√" && num2 == "")) return;
+
                       double n1 = double.parse(num1);
-                      double n2 = double.parse(num2);
+                      double n2 = num2.isEmpty ? 0 : double.parse(num2);
                       double result = 0;
+
                       if (operator == "+") {
                         result = n1 + n2;
                       } else if (operator == "-") {
@@ -267,23 +329,28 @@ class _MyHomepageState extends State<MyHomepage> {
                         result = n1 * n2;
                       } else if (operator == "/") {
                         result = n1 / n2;
+                      } else if (operator == "%") {
+                        result = (n1 / 100) * n2;
+                      } else if (operator == "^") {
+                        result = pow(n1, n2).toDouble();
                       }
+
                       showValue = result.toString();
-                      num1 = showValue.toString();
+                      num1 = showValue;
                       num2 = "";
+                      operator = "";
                     });
                   },
-
                   child: Text("="),
                 ),
                 SizedBox(width: 30),
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      operator = "/";
+                      operator = "+";
                     });
                   },
-                  child: Text("/"),
+                  child: Text("+"),
                 ),
               ],
             ),
