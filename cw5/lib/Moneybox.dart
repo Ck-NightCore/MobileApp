@@ -10,12 +10,12 @@ class Moneybox extends StatelessWidget {
   final double broderradius;
 
 
-  Moneybox(
+  const Moneybox(
     this.title,
     this.amount,
     this.sizeconheight,
     this.Colorset,
-    this.broderradius,
+    this.broderradius, {super.key},
   );
 
   @override
