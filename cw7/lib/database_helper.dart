@@ -3,72 +3,94 @@ import 'package:path/path.dart';
 import 'user.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._instance();
+  // Singleton
+  static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
 
-  DatabaseHelper._instance();
+  DatabaseHelper._init();
 
+  // Get database
   Future<Database> get database async {
-    _database ??= await initDb();
+    if (_database != null) return _database!;
+    _database = await _initDB();
     return _database!;
   }
 
-  Future<Database> initDb() async {
-    String databasePath = await getDatabasesPath();
-    String path = join(databasePath, 'app.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+  // Create database
+  Future<Database> _initDB() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'databaseapp.db');
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
   }
 
-  void _onCreate(Database db, int version) async {
+  // Create table
+  Future<void> _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY,
-        username TEXT,
-        email TEXT
+      CREATE TABLE tbUsers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL
       )
     ''');
   }
 
+  // ================= CRUD =================
+
+  // INSERT
   Future<int> insertUser(User user) async {
-    Database db = await instance.database;
-    return await db.insert('users', user.toMap());
+    final db = await database;
+    return await db.insert(
+      'tbUsers',
+      user.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  Future<List<Map<String, dynamic>>> getAllUsers() async {
-    Database db = await instance.database;
-    return await db.query('users');
+  // SELECT ALL
+  Future<List<User>> getAllUsers() async {
+    final db = await database;
+    final result = await db.query(
+      'tbUsers',
+      orderBy: 'id DESC',
+    );
+    return result.map((e) => User.fromMap(e)).toList();
   }
 
+  // UPDATE
   Future<int> updateUser(User user) async {
-    Database db = await instance.database;
+    final db = await database;
     return await db.update(
-      'users',
+      'tbUsers',
       user.toMap(),
       where: 'id = ?',
       whereArgs: [user.id],
     );
   }
 
+  // DELETE ONE
   Future<int> deleteUser(int id) async {
-    Database db = await instance.database;
-    return await db.delete('users', where: 'id = ?', whereArgs: [id]);
+    final db = await database;
+    return await db.delete(
+      'tbUsers',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
-  Future<void> deleteAllUsers() async {
-    Database db = await instance.database;
-    await db.delete('users');
+  // DELETE ALL
+  Future<int> deleteAllUsers() async {
+    final db = await database;
+    return await db.delete('tbUsers');
   }
 
-  Future<void> insertInitialUsers() async {
-    List<User> usersToAdd = [
-      User(username: 'john', email: 'john@example.com'),
-      User(username: 'jane', email: 'jane@example.com'),
-      User(username: 'alice', email: 'alice@example.com'),
-      User(username: 'bob', email: 'bob@example.com'),
-    ];
-
-    for (User user in usersToAdd) {
-      await insertUser(user);
-    }
+  // CLOSE DB (optional)
+  Future close() async {
+    final db = await database;
+    db.close();
   }
 }

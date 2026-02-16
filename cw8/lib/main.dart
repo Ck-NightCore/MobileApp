@@ -1,118 +1,61 @@
 import 'package:flutter/material.dart';
+import 'scan_qrcode_page.dart';
+import 'webview_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Flutter CW8',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(title: 'List Example'),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyhomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class data {
-  late int id;
-  late String name;
-  late DateTime t;
-  data(this.id, this.name, this.t);
-}
+class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+  final tabs = [ScanQrcodePage(), WebviewPage()];
 
-class _MyhomePageState extends State<MyHomePage> {
-  String txt = 'N/A';
-  List<data> mylist = <data>[];
-  int img = 0;
-  var list = ['one', 'two', 'three', 'four'];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Radio(
-                  value: 1,
-                  groupValue: img,
-                  onChanged: (int? value) {
-                    setState(() {
-                      img = 1;
-                    });
-                  },
-                ),
-                const CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/images/ig.png'),
-                ),
-              ],
-            ),
-            const TextField(),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  txt = 'Add item Success';
-                  mylist.add(data(img, '1', DateTime.now()));
-                });
-              },
-              child: const Text('Add Item'),
-            ),
-            Text(txt, textScaleFactor: 2),
-            SizedBox(
-              width: double.infinity,
-              height: 550,
-              child: ListView.builder(
-                itemCount: mylist.length,
-                itemBuilder: (context, index) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 80,
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      color: Colors.primaries[index % Colors.primaries.length],
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                          radius: 30,
-                          backgroundImage: AssetImage(
-                            'assets/images/rocket.png',
-                          ),
-                        ),
-                        title: Text('Title Text (${mylist[index].id})'),
-                        subtitle: Text(mylist[index].t.toString()),
-                        trailing: const Icon(Icons.delete_rounded),
-                        onTap: () {
-                          setState(() {
-                            txt = 'Title Text ($index) is remove';
-                            mylist.removeAt(index);
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+      body: tabs[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.shifting,
+        iconSize: 35,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan QR Code',
+            backgroundColor: Colors.pink,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.web),
+            label: 'Webview',
+            backgroundColor: Colors.pinkAccent,
+          ),
+        ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
